@@ -138,33 +138,33 @@ def gdal_pansharpen(argv):
     i = 1
     argc = len(argv)
     while i < argc:
-        if (argv[i] == "-of" or argv[i] == "-f") and i < len(argv) - 1:
+        if argv[i] in ["-of", "-f"] and i < len(argv) - 1:
             frmt = argv[i + 1]
-            i = i + 1
+            i += 1
         elif argv[i] == "-r" and i < len(argv) - 1:
             resampling = argv[i + 1]
-            i = i + 1
+            i += 1
         elif argv[i] == "-spat_adjust" and i < len(argv) - 1:
             spat_adjust = argv[i + 1]
-            i = i + 1
+            i += 1
         elif argv[i] == "-b" and i < len(argv) - 1:
             bands.append(int(argv[i + 1]))
-            i = i + 1
+            i += 1
         elif argv[i] == "-w" and i < len(argv) - 1:
             weights.append(float(argv[i + 1]))
-            i = i + 1
+            i += 1
         elif argv[i] == "-co" and i < len(argv) - 1:
             creation_options.append(argv[i + 1])
-            i = i + 1
+            i += 1
         elif argv[i] == "-threads" and i < len(argv) - 1:
             num_threads = argv[i + 1]
-            i = i + 1
+            i += 1
         elif argv[i] == "-bitdepth" and i < len(argv) - 1:
             bitdepth = argv[i + 1]
-            i = i + 1
+            i += 1
         elif argv[i] == "-nodata" and i < len(argv) - 1:
             nodata = argv[i + 1]
-            i = i + 1
+            i += 1
         elif argv[i] == "-q":
             callback = None
         elif argv[i] == "-verbose_vrt":
@@ -200,7 +200,7 @@ def gdal_pansharpen(argv):
 
             last_name = argv[i]
 
-        i = i + 1
+        i += 1
 
     if pan_name is None or not spectral_bands:
         return Usage()
@@ -266,10 +266,9 @@ def gdal_pansharpen(argv):
         )
 
     pan_relative = "0"
-    if frmt.upper() == "VRT":
-        if not os.path.isabs(pan_name):
-            pan_relative = "1"
-            pan_name = os.path.relpath(pan_name, os.path.dirname(out_name))
+    if frmt.upper() == "VRT" and not os.path.isabs(pan_name):
+        pan_relative = "1"
+        pan_name = os.path.relpath(pan_name, os.path.dirname(out_name))
 
     vrt_xml += """    <PanchroBand>
       <SourceFilename relativeToVRT="%s">%s</SourceFilename>
@@ -288,10 +287,9 @@ def gdal_pansharpen(argv):
 
         ms_relative = "0"
         ms_name = spectral_ds[i].GetDescription()
-        if frmt.upper() == "VRT":
-            if not os.path.isabs(ms_name):
-                ms_relative = "1"
-                ms_name = os.path.relpath(ms_name, os.path.dirname(out_name))
+        if frmt.upper() == "VRT" and not os.path.isabs(ms_name):
+            ms_relative = "1"
+            ms_name = os.path.relpath(ms_name, os.path.dirname(out_name))
 
         vrt_xml += """    <SpectralBand%s>
       <SourceFilename relativeToVRT="%s">%s</SourceFilename>
